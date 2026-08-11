@@ -1,0 +1,25 @@
+{
+  "note": "Fixture. Deliberately unstructured — imposing structure is Dorothy's job. Legal/ and Financial/ entries exist so the redaction path is exercised, not because they are needed.",
+  "files": [
+    {"path": "/Untitled document.gdoc", "type": "doc", "modified_days_ago": 2},
+    {"path": "/Untitled document (1).gdoc", "type": "doc", "modified_days_ago": 14},
+    {"path": "/notes oct.gdoc", "type": "doc", "modified_days_ago": 41},
+    {"path": "/Copy of Copy of pitch v3 FINAL.gslides", "type": "slides", "modified_days_ago": 63},
+    {"path": "/five year plan DRAFT.gdoc", "type": "doc", "modified_days_ago": 9},
+    {"path": "/five year plan DRAFT v2.gdoc", "type": "doc", "modified_days_ago": 7},
+    {"path": "/Clients/Halcyon/discovery notes.gdoc", "type": "doc", "modified_days_ago": 3},
+    {"path": "/Clients/Halcyon/proposal v1.gdoc", "type": "doc", "modified_days_ago": 3},
+    {"path": "/Clients/Okafor/intro call notes.gdoc", "type": "doc", "modified_days_ago": 11},
+    {"path": "/Clients/misc/untitled.gsheet", "type": "sheet", "modified_days_ago": 88},
+    {"path": "/Tardus/onboarding sequence.gdoc", "type": "doc", "modified_days_ago": 5},
+    {"path": "/Tardus/Q3 forecast.gsheet", "type": "sheet", "modified_days_ago": 1},
+    {"path": "/Substack/drafts/why systems beat goals.gdoc", "type": "doc", "modified_days_ago": 6},
+    {"path": "/Substack/drafts/untitled draft.gdoc", "type": "doc", "modified_days_ago": 22},
+    {"path": "/Screenshots/Screenshot 2026-07-14 at 10.22.11.png", "type": "image", "modified_days_ago": 28},
+    {"path": "/Screenshots/Screenshot 2026-07-29 at 16.02.44.png", "type": "image", "modified_days_ago": 13},
+    {"path": "/Legal/operating agreement signed.pdf", "type": "pdf", "modified_days_ago": 220},
+    {"path": "/Legal/Halcyon MSA executed.pdf", "type": "pdf", "modified_days_ago": 34},
+    {"path": "/Financial/2025 returns.pdf", "type": "pdf", "modified_days_ago": 150},
+    {"path": "/Financial/runway model.gsheet", "type": "sheet", "modified_days_ago": 4}
+  ]
+}

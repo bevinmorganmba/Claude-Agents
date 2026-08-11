@@ -1,0 +1,11 @@
+{
+  "source": "calendly",
+  "calendar": "bevinmorgan.com bookings",
+  "note": "Fixture. Real integration is a read-only PAT against scheduled events.",
+  "events": [
+    {"day_offset": 1, "start": "16:30", "end": "17:00", "title": "Intro call — J. Okafor", "external": true},
+    {"day_offset": 2, "start": "12:00", "end": "12:30", "title": "Discovery — Halcyon Group", "external": true},
+    {"day_offset": 4, "start": "09:00", "end": "09:30", "title": "Intro call — T. Duval", "external": true},
+    {"day_offset": 4, "start": "15:30", "end": "16:00", "title": "Follow-up — Halcyon Group", "external": true}
+  ]
+}

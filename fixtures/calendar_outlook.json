@@ -1,0 +1,16 @@
+{
+  "source": "outlook",
+  "calendar": "Tardus (business)",
+  "note": "Fixture only. No real Outlook connection exists — see open item 03 in the proposal: connecting the Tardus tenant needs admin consent before Phase 2.",
+  "events": [
+    {"day_offset": 0, "start": "10:00", "end": "10:30", "title": "Tardus standup"},
+    {"day_offset": 0, "start": "14:00", "end": "15:00", "title": "Pipeline review", "external": true},
+    {"day_offset": 1, "start": "11:00", "end": "11:30", "title": "1:1 — Renée"},
+    {"day_offset": 1, "start": "13:00", "end": "14:00", "title": "Q3 forecast working session"},
+    {"day_offset": 2, "start": "09:30", "end": "10:00", "title": "Tardus standup"},
+    {"day_offset": 2, "start": "14:00", "end": "16:00", "title": "Partner workshop", "in_person": true, "location": "Tardus HQ", "external": true},
+    {"day_offset": 3, "start": "10:00", "end": "10:30", "title": "Tardus standup"},
+    {"day_offset": 3, "start": "11:00", "end": "12:00", "title": "Ops review"},
+    {"day_offset": 4, "start": "10:00", "end": "10:30", "title": "Tardus standup"}
+  ]
+}

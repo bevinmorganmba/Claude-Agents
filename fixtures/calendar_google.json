@@ -1,0 +1,15 @@
+{
+  "source": "google",
+  "calendar": "personal",
+  "note": "Fixture. day_offset is relative to today, so this stays realistic on any date.",
+  "events": [
+    {"day_offset": 0, "start": "08:00", "end": "08:45", "title": "Gym", "in_person": true, "location": "Anytime Fitness"},
+    {"day_offset": 0, "start": "12:30", "end": "13:30", "title": "Lunch — Marcus", "in_person": true, "location": "Sweet Maple", "external": true},
+    {"day_offset": 0, "start": "16:00", "end": "16:30", "title": "School pickup", "in_person": true, "location": "Ridgeview Elementary"},
+    {"day_offset": 1, "start": "09:00", "end": "10:00", "title": "Deep work — Substack draft"},
+    {"day_offset": 1, "start": "15:00", "end": "16:00", "title": "Dentist", "in_person": true, "location": "Dr. Achebe"},
+    {"day_offset": 2, "start": "11:00", "end": "12:00", "title": "Deep work — five-year plan review"},
+    {"day_offset": 3, "start": "08:30", "end": "09:00", "title": "Weekly reset"},
+    {"day_offset": 4, "start": "13:00", "end": "14:30", "title": "Site visit — Northgate", "in_person": true, "location": "Northgate", "external": true}
+  ]
+}

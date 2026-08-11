@@ -1,0 +1,92 @@
+# Hermes fleet — permission policy.
+#
+# This file, not any prompt, decides what the agents may do. The broker reads
+# it before every tool call. Editing it is a deliberate act over SSH; nothing
+# an agent says and no approval code can change what is written here.
+#
+# Order of evaluation:
+#   1. deny rules       -> refused, terminal, not overridable by approval
+#   2. agent allow list -> absent means refused (default deny)
+#   3. agent approve    -> queued for Bevin
+#   4. otherwise        -> allowed
+
+version: 1
+
+# ---------------------------------------------------------------- hard deny
+# These are the five rules Bevin specified. They apply to every agent and
+# cannot be unlocked by approving anything.
+
+deny:
+  - id: no-external-email
+    tools: ["gmail.send", "outlook.send"]
+    when:
+      arg: to
+      not_matching: "(?i)(@bevinmorgan\\.com|bevin\\.morgan\\.mba@gmail\\.com)$"
+    reason: "Never email an external client."
+
+  - id: no-deletes
+    tools: ["*.delete", "*.remove", "*.trash", "*.destroy"]
+    reason: "Never delete anything, on any system."
+
+  - id: no-legal-or-financial
+    tools: ["drive.*", "gmail.*", "outlook.*"]
+    when:
+      arg: [path, path_prefix, source_path, destination_path, query]
+      matching: "(?i)(^|/)(legal|financial|tax|contracts?|invoices?)(/|$)"
+    reason: "Never touch legal or financial documents."
+
+  - id: no-substack
+    tools: ["substack.*"]
+    reason: "Never publish to Substack."
+
+  - id: no-mail-in-phase-0
+    tools: ["gmail.*", "outlook.*"]
+    reason: >-
+      No task in scope needs mail access, so no agent holds mail scopes.
+      Remove this rule only when a task genuinely requires it.
+
+# ---------------------------------------------------------------- per agent
+# Default deny: a tool absent from both lists is refused.
+
+agents:
+
+  # The router. Reachable from the outside world, so it holds nothing —
+  # compromising Uhura yields a process with no capabilities.
+  uhura:
+    allow: []
+    approve: []
+
+  katherine:
+    allow:
+      - calendar.list_events
+      - calendar.free_busy
+      - calendar.find_slots
+      - calendar.check_slot
+      - context.read
+    approve:
+      - calendar.create_event      # Phase 4; queues today so the gate is visible
+
+  boone:
+    allow:
+      - kanban.list_tasks
+      - kanban.set_status          # local board only, no external system
+      - calendar.free_busy
+      - context.read
+    approve: []
+
+  guinan:
+    allow:
+      - context.read
+      - kanban.list_tasks
+      - drive.list_metadata
+    approve: []                    # Guinan advises; she never acts
+
+  dorothy:
+    allow:
+      - context.read
+      - context.write              # she owns the context repo
+      - kanban.list_tasks
+      - kanban.set_status
+      - drive.list_metadata
+    approve:
+      - drive.move                 # restructuring Drive is her job, with consent
