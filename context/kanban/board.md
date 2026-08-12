@@ -6,9 +6,9 @@ Machine-readable. One task per line, pipe-separated:
 
 `est` accepts minutes (`45m`) or hours (`2h`). `energy` is one of `deep`,
 `shallow`, `admin`, `social`. `blocks` names a person or task waiting on this,
-or `none`. Boone reads all four fields; Dorothy keeps them honest.
+or `none`. Bailey reads all four fields; Barbara keeps them honest.
 
-Seeded with plausible work so Boone has something to reason over on day one.
+Seeded with plausible work so Bailey has something to reason over on day one.
 Replace with your real board before Phase 1.
 
 ## Now

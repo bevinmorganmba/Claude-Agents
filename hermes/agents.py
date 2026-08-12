@@ -16,11 +16,11 @@ from . import config, tools
 from .broker import Broker
 
 ROSTER = {
-    "uhura": "routes incoming messages; answers nothing herself",
-    "katherine": "calendars, availability, what's on today, when a meeting can land",
-    "boone": "what to work on right now, given the time and energy you have",
-    "guinan": "whether an idea, task or opportunity fits the five-year plan",
-    "dorothy": "the shared context repo, the Kanban board, and Drive structure",
+    "olivia": "routes incoming messages; answers nothing herself",
+    "holt": "calendars, availability, what's on today, when a meeting can land",
+    "bailey": "what to work on right now, given the time and energy you have",
+    "danbury": "whether an idea, task or opportunity fits the five-year plan",
+    "barbara": "the shared context repo, the Kanban board, and Drive structure",
 }
 
 # Applied to every agent. Opus 5 and Sonnet 5 both default to longer replies
@@ -103,7 +103,7 @@ def _request_kwargs(agent: str) -> dict[str, Any]:
     if model in ("claude-sonnet-5", "claude-opus-5"):
         kwargs["thinking"] = {"type": "adaptive"}
         kwargs["output_config"] = {"effort": config.EFFORT[agent]}
-        if agent == "guinan":
+        if agent == "danbury":
             kwargs["max_tokens"] = 16000
     return kwargs
 
@@ -130,24 +130,24 @@ class Fleet:
     # ------------------------------------------------------------ routing
 
     def route(self, text: str) -> tuple[str, str]:
-        """Uhura. Returns (agent, restated task). Cheap model, no tools, no
+        """Olivia. Returns (agent, restated task). Cheap model, no tools, no
         credentials — she is the only component exposed to the outside world
         and she holds nothing."""
         schema = {
             "type": "object",
             "properties": {
-                "agent": {"type": "string", "enum": list(k for k in ROSTER if k != "uhura")},
+                "agent": {"type": "string", "enum": list(k for k in ROSTER if k != "olivia")},
                 "task": {"type": "string"},
             },
             "required": ["agent", "task"],
             "additionalProperties": False,
         }
-        roster = "\n".join(f"- {n}: {d}" for n, d in ROSTER.items() if n != "uhura")
+        roster = "\n".join(f"- {n}: {d}" for n, d in ROSTER.items() if n != "olivia")
         resp = self.client.messages.create(
-            model=config.MODELS["uhura"],
+            model=config.MODELS["olivia"],
             max_tokens=400,
             system=(
-                "You are Uhura, the switchboard for a small fleet of assistants. "
+                "You are Olivia, the switchboard for a small fleet of assistants. "
                 "Pick exactly one agent to handle the message and restate the task "
                 "in one clear sentence for them. You never answer questions yourself "
                 "and you have no tools.\n\n" + roster

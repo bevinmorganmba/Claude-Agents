@@ -1,6 +1,6 @@
 # Five-year plan
 
-Bevin's own words, recorded August 2026. Guinan reasons against this file and
+Bevin's own words, recorded August 2026. Danbury reasons against this file and
 nothing else — if an answer can't be traced to something here, she should say
 the plan is silent rather than fill the gap with generic advice.
 

@@ -19,7 +19,7 @@ APPROVALS_DB = VAR / "approvals.json"
 
 TZ = ZoneInfo(os.environ.get("HERMES_TZ", "America/New_York"))
 
-# Katherine's assumptions when computing availability. Deliberately explicit:
+# Holt's assumptions when computing availability. Deliberately explicit:
 # an agent that guesses at your working day is worse than one that states it.
 WORKDAY_START = "08:30"
 WORKDAY_END = "18:00"
@@ -28,22 +28,22 @@ MIN_GAP_MIN = 15  # gaps shorter than this are not real availability
 
 APPROVAL_TTL_SECONDS = 15 * 60
 
-# Model assignment per the approved design. Uhura only routes, so she runs on
-# the cheapest model; Guinan reasons against the five-year plan and gets Opus.
+# Model assignment per the approved design. Olivia only routes, so she runs on
+# the cheapest model; Danbury reasons against the five-year plan and gets Opus.
 MODELS = {
-    "uhura": "claude-haiku-4-5",
-    "katherine": "claude-sonnet-5",
-    "boone": "claude-sonnet-5",
-    "dorothy": "claude-sonnet-5",
-    "guinan": "claude-opus-5",
+    "olivia": "claude-haiku-4-5",
+    "holt": "claude-sonnet-5",
+    "bailey": "claude-sonnet-5",
+    "barbara": "claude-sonnet-5",
+    "danbury": "claude-opus-5",
 }
 
 EFFORT = {
-    "uhura": "low",
-    "katherine": "medium",
-    "boone": "medium",
-    "dorothy": "medium",
-    "guinan": "high",
+    "olivia": "low",
+    "holt": "medium",
+    "bailey": "medium",
+    "barbara": "medium",
+    "danbury": "high",
 }
 
 

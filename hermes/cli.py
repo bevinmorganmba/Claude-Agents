@@ -31,7 +31,7 @@ def cmd_chat(args) -> int:
     fleet = Fleet(Broker(Policy.load()))
     histories: dict[str, list] = {}
     print(f"{BOLD}Hermes fleet — Phase 0{OFF} {DIM}(fixtures only, nothing connected){OFF}")
-    print(f"{DIM}Address an agent by name, or just ask and Uhura will route.")
+    print(f"{DIM}Address an agent by name, or just ask and Olivia will route.")
     print(f"Approve with 'yes <code>'.  /pending  /board  /log  /quit{OFF}\n")
 
     while True:
@@ -54,7 +54,7 @@ def cmd_chat(args) -> int:
             _print_log(12)
             continue
 
-        bus.publish("in", "local", "uhura", line)
+        bus.publish("in", "local", "olivia", line)
 
         m = APPROVE_RE.match(line)
         if m:
@@ -68,19 +68,19 @@ def cmd_chat(args) -> int:
             _say("broker", result.text)
             continue
 
-        # Explicit addressing beats routing: "katherine, what's on today"
+        # Explicit addressing beats routing: "holt, what's on today"
         agent, task = None, line
         first = line.split(",")[0].split()[0].lower().lstrip("@")
-        if first in config.MODELS and first != "uhura":
+        if first in config.MODELS and first != "olivia":
             agent = first
             task = line[len(line.split(",")[0]) + 1:].strip() if "," in line else \
                 " ".join(line.split()[1:])
         if agent is None:
             try:
                 agent, task = fleet.route(line)
-                print(f"{DIM}  uhura → {agent}: {task}{OFF}")
+                print(f"{DIM}  olivia → {agent}: {task}{OFF}")
             except Exception as exc:
-                _say("uhura", f"{RED}routing failed: {exc}{OFF}")
+                _say("olivia", f"{RED}routing failed: {exc}{OFF}")
                 continue
 
         def trace(a, tool, targs):
@@ -101,32 +101,32 @@ def cmd_chat(args) -> int:
 
 
 DRILLS = [
-    ("katherine", "calendar.list_events", {"day_offset": 0},
+    ("holt", "calendar.list_events", {"day_offset": 0},
      "allow", "in-scope read"),
-    ("katherine", "calendar.find_slots", {"duration_minutes": 45},
+    ("holt", "calendar.find_slots", {"duration_minutes": 45},
      "allow", "in-scope read"),
-    ("katherine", "calendar.create_event",
+    ("holt", "calendar.create_event",
      {"day_offset": 1, "start_time": "10:00", "duration_minutes": 30, "title": "Test"},
      "pending", "write, so it queues for approval"),
-    ("boone", "calendar.create_event",
+    ("bailey", "calendar.create_event",
      {"day_offset": 1, "start_time": "10:00", "duration_minutes": 30, "title": "Test"},
-     "denied", "not in Boone's allow list — default deny"),
-    ("uhura", "calendar.list_events", {"day_offset": 0},
+     "denied", "not in Bailey's allow list — default deny"),
+    ("olivia", "calendar.list_events", {"day_offset": 0},
      "denied", "the router holds nothing at all"),
-    ("dorothy", "gmail.send",
+    ("barbara", "gmail.send",
      {"to": "client@example.com", "subject": "hi", "body": "hi"},
      "denied", "hard deny: never email an external client"),
-    ("dorothy", "drive.delete", {"path": "/Clients/old.pdf"},
+    ("barbara", "drive.delete", {"path": "/Clients/old.pdf"},
      "denied", "hard deny: never delete anything"),
-    ("guinan", "context.read", {"path": "identity/five-year-plan.md"},
-     "allow", "the plan is what Guinan reasons against"),
-    ("dorothy", "drive.list_metadata", {"path_prefix": "/Financial/"},
+    ("danbury", "context.read", {"path": "identity/five-year-plan.md"},
+     "allow", "the plan is what Danbury reasons against"),
+    ("barbara", "drive.list_metadata", {"path_prefix": "/Financial/"},
      "denied", "hard deny: never touch financial docs"),
-    ("dorothy", "drive.list_metadata", {"path_prefix": "/Legal/"},
+    ("barbara", "drive.list_metadata", {"path_prefix": "/Legal/"},
      "denied", "hard deny: never touch legal docs"),
-    ("dorothy", "substack.publish", {"title": "Draft", "body": "..."},
+    ("barbara", "substack.publish", {"title": "Draft", "body": "..."},
      "denied", "hard deny: never publish to Substack"),
-    ("dorothy", "drive.move",
+    ("barbara", "drive.move",
      {"source_path": "/Inbox/a.pdf", "destination_path": "/Clients/a.pdf"},
      "pending", "Drive writes queue for approval"),
 ]

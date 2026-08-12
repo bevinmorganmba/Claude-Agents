@@ -1,7 +1,7 @@
 # Operating principles
 
-How Bevin decides. Boone reads this to pick *one* thing rather than hand back a
-ranked list; Katherine reads it to know which time is worth protecting.
+How Bevin decides. Bailey reads this to pick *one* thing rather than hand back a
+ranked list; Holt reads it to know which time is worth protecting.
 
 ## The priority ladder
 

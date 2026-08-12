@@ -44,14 +44,14 @@ class TestHardDeny(Isolated):
     """The five rules Bevin specified. None is overridable."""
 
     def test_never_email_an_external_client(self):
-        r = self.broker.execute("dorothy", "gmail.send",
+        r = self.broker.execute("barbara", "gmail.send",
                                 {"to": "cfo@halcyon.example", "subject": "hi", "body": "x"})
         self.assertEqual(r.status, "denied")
 
     def test_never_delete_anything(self):
         for tool, args in [("drive.delete", {"path": "/Clients/x.pdf"})]:
             with self.subTest(tool=tool):
-                self.assertEqual(self.broker.execute("dorothy", tool, args).status, "denied")
+                self.assertEqual(self.broker.execute("barbara", tool, args).status, "denied")
 
     def test_never_touch_legal_or_financial(self):
         cases = [
@@ -66,36 +66,36 @@ class TestHardDeny(Isolated):
         ]
         for tool, args in cases:
             with self.subTest(args=args):
-                r = self.broker.execute("dorothy", tool, args)
+                r = self.broker.execute("barbara", tool, args)
                 self.assertEqual(r.status, "denied", f"{args} should be refused")
                 self.assertEqual(r.rule, "no-legal-or-financial")
 
     def test_never_publish_to_substack(self):
-        r = self.broker.execute("dorothy", "substack.publish", {"title": "t", "body": "b"})
+        r = self.broker.execute("barbara", "substack.publish", {"title": "t", "body": "b"})
         self.assertEqual(r.status, "denied")
 
     def test_deny_survives_approval(self):
         """A queued action re-checked at redemption still cannot beat a deny."""
-        pending = approvals.enqueue("dorothy", "drive.delete", {"path": "/x.pdf"}, "delete x")
+        pending = approvals.enqueue("barbara", "drive.delete", {"path": "/x.pdf"}, "delete x")
         r = self.broker.redeem(pending.code)
         self.assertEqual(r.status, "denied")
 
 
 class TestDefaultDeny(Isolated):
     def test_tool_outside_allow_list_is_refused(self):
-        r = self.broker.execute("boone", "calendar.create_event",
+        r = self.broker.execute("bailey", "calendar.create_event",
                                 {"day_offset": 1, "start_time": "10:00",
                                  "duration_minutes": 30, "title": "x"})
         self.assertEqual(r.status, "denied")
         self.assertEqual(r.rule, "default-deny")
 
     def test_router_holds_nothing(self):
-        """Uhura is the only agent reachable from outside. She must hold no
+        """Olivia is the only agent reachable from outside. She must hold no
         capability at all — this is the blast-radius guarantee."""
         for tool in ("calendar.list_events", "context.read", "kanban.list_tasks",
                      "drive.list_metadata"):
             with self.subTest(tool=tool):
-                r = self.broker.execute("uhura", tool, {"day_offset": 0, "path": "x"})
+                r = self.broker.execute("olivia", tool, {"day_offset": 0, "path": "x"})
                 self.assertEqual(r.status, "denied")
 
     def test_unknown_agent_is_refused(self):
@@ -105,7 +105,7 @@ class TestDefaultDeny(Isolated):
 
 class TestApprovals(Isolated):
     def _queue(self):
-        r = self.broker.execute("katherine", "calendar.create_event",
+        r = self.broker.execute("holt", "calendar.create_event",
                                 {"day_offset": 1, "start_time": "10:00",
                                  "duration_minutes": 30, "title": "Test"})
         self.assertEqual(r.status, "pending")
@@ -136,8 +136,8 @@ class TestApprovals(Isolated):
         a = {"day_offset": 1, "start_time": "10:00", "duration_minutes": 30, "title": "A"}
         b = {**a, "title": "B"}
         self.assertNotEqual(
-            approvals.fingerprint("katherine", "calendar.create_event", a),
-            approvals.fingerprint("katherine", "calendar.create_event", b),
+            approvals.fingerprint("holt", "calendar.create_event", a),
+            approvals.fingerprint("holt", "calendar.create_event", b),
         )
 
     def test_rejection_drops_the_action(self):
@@ -148,14 +148,14 @@ class TestApprovals(Isolated):
 
 class TestAuditChain(Isolated):
     def test_chain_is_intact_after_activity(self):
-        self.broker.execute("katherine", "calendar.list_events", {"day_offset": 0})
-        self.broker.execute("dorothy", "drive.delete", {"path": "/x"})
+        self.broker.execute("holt", "calendar.list_events", {"day_offset": 0})
+        self.broker.execute("barbara", "drive.delete", {"path": "/x"})
         ok, msg = audit.verify()
         self.assertTrue(ok, msg)
 
     def test_editing_a_past_entry_breaks_the_chain(self):
-        self.broker.execute("dorothy", "drive.delete", {"path": "/x"})
-        self.broker.execute("katherine", "calendar.list_events", {"day_offset": 0})
+        self.broker.execute("barbara", "drive.delete", {"path": "/x"})
+        self.broker.execute("holt", "calendar.list_events", {"day_offset": 0})
         text = config.AUDIT_LOG.read_text()
         config.AUDIT_LOG.write_text(text.replace("tool.denied", "tool.executed", 1))
         ok, msg = audit.verify()
@@ -164,14 +164,14 @@ class TestAuditChain(Isolated):
 
     def test_removing_an_entry_breaks_the_chain(self):
         for _ in range(3):
-            self.broker.execute("katherine", "calendar.list_events", {"day_offset": 0})
+            self.broker.execute("holt", "calendar.list_events", {"day_offset": 0})
         lines = config.AUDIT_LOG.read_text().splitlines()
         config.AUDIT_LOG.write_text("\n".join(lines[:1] + lines[2:]) + "\n")
         ok, _ = audit.verify()
         self.assertFalse(ok, "a deleted entry must be detected")
 
     def test_denials_are_recorded_not_just_blocked(self):
-        self.broker.execute("dorothy", "substack.publish", {"title": "t", "body": "b"})
+        self.broker.execute("barbara", "substack.publish", {"title": "t", "body": "b"})
         denied = [e for e in audit.read() if e["event"] == "tool.denied"]
         self.assertEqual(len(denied), 1)
         self.assertEqual(denied[0]["rule"], "no-substack")

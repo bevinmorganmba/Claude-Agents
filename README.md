@@ -25,10 +25,10 @@ python3 -m hermes chat
 
 ```
 you  what's on today?
-       uhura → katherine: list today's calendar commitments
-       katherine → calendar.list_events({"day_offset": 0})
+       olivia → holt: list today's calendar commitments
+       holt → calendar.list_events({"day_offset": 0})
 
-Katherine  Five things today. Gym at 8, Tardus standup at 10, lunch with
+Holt  Five things today. Gym at 8, Tardus standup at 10, lunch with
            Marcus 12:30 in person at Sweet Maple, pipeline review at 2,
            school pickup at 4. Your only real work block is 10:30–12:30.
 ```
@@ -40,11 +40,11 @@ Other commands: `hermes board`, `hermes pending`, `hermes log`,
 
 | Agent | Owns | Model | Tools |
 |---|---|---|---|
-| **Uhura** | Routing only | Haiku 4.5 | **none, by design** |
-| **Katherine** | Calendars, availability | Sonnet 5 | 5 read + 1 approval-gated |
-| **Boone** | What to work on now | Sonnet 5 | 4, local board only |
-| **Guinan** | Fit against the five-year plan | Opus 5 | 3 read, never acts |
-| **Dorothy** | Context repo, board, Drive structure | Sonnet 5 | 5 + 1 approval-gated |
+| **Olivia** | Routing only | Haiku 4.5 | **none, by design** |
+| **Holt** | Calendars, availability | Sonnet 5 | 5 read + 1 approval-gated |
+| **Bailey** | What to work on now | Sonnet 5 | 4, local board only |
+| **Danbury** | Fit against the five-year plan | Opus 5 | 3 read, never acts |
+| **Barbara** | Context repo, board, Drive structure | Sonnet 5 | 5 + 1 approval-gated |
 
 Each agent's personality, scope, and refusals live in
 `context/agents/<name>/charter.md`. Those files are the spec — edit them and
@@ -77,9 +77,9 @@ once, for fifteen minutes, bound to a hash of that exact action — approving
 "create the 9:30 Halcyon call" cannot be replayed to create anything else.
 
 ```
-you  katherine, book 30 min with Halcyon tomorrow at 9:30
+you  holt, book 30 min with Halcyon tomorrow at 9:30
 
-Katherine  I've queued a 30-minute "Halcyon follow-up" for Wednesday 9:30.
+Holt  I've queued a 30-minute "Halcyon follow-up" for Wednesday 9:30.
            Reply 'yes bgp' to confirm — nothing has happened yet.
 
 you  yes bgp
@@ -102,13 +102,13 @@ of WhatsApp — Phase 2 swaps `hermes/bus.py` and nothing else moves.
 
 ## Before Phase 1
 
-The scaffolds in `context/identity/` are marked TODO on purpose — Guinan
+The scaffolds in `context/identity/` are marked TODO on purpose — Danbury
 reasons against `five-year-plan.md`, so her answers are only as good as what
 you put there. Those three files are the highest-value thing you can spend
 thirty minutes on.
 
 Still open from the proposal: whether connecting the Tardus Outlook tenant is
-permitted (Katherine runs Google + Calendly only until it is), and the actual
+permitted (Holt runs Google + Calendly only until it is), and the actual
 folder names you consider off-limits so they can go in the deny list.
 
 ## Layout

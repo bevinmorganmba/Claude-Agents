@@ -1,7 +1,7 @@
 # Ecosystem map
 
-How the pieces connect, in Bevin's words, August 2026. Guinan uses this to
-place a new thing; Boone uses it to know which venture a task actually serves.
+How the pieces connect, in Bevin's words, August 2026. Danbury uses this to
+place a new thing; Bailey uses it to know which venture a task actually serves.
 
 ## The pieces
 
