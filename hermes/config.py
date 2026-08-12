@@ -8,6 +8,24 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 
+
+def _load_dotenv() -> None:
+    """Read .env if present, without adding a dependency. Lets setup.sh save
+    the API key once instead of asking for an export on every new shell —
+    which is the step people forget and then think the thing is broken."""
+    env = ROOT / ".env"
+    if not env.exists():
+        return
+    for line in env.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+
+
+_load_dotenv()
+
 CONTEXT = ROOT / "context"
 FIXTURES = ROOT / "fixtures"
 POLICY_FILE = ROOT / "policy.yml"

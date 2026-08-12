@@ -30,9 +30,19 @@ def _say(agent: str, text: str) -> None:
 def cmd_chat(args) -> int:
     fleet = Fleet(Broker(Policy.load()))
     histories: dict[str, list] = {}
-    print(f"{BOLD}Hermes fleet — Phase 0{OFF} {DIM}(fixtures only, nothing connected){OFF}")
-    print(f"{DIM}Address an agent by name, or just ask and Olivia will route.")
-    print(f"Approve with 'yes <code>'.  /pending  /board  /log  /quit{OFF}\n")
+    on_fixtures = all(s_.kind == "fixture" for s_ in sources.load().sources)
+
+    print(f"{BOLD}Hermes fleet{OFF}")
+    print(f"  {GREEN}live{OFF}  bailey   what to work on now      {DIM}(your real board){OFF}")
+    print(f"  {GREEN}live{OFF}  danbury  does this fit the plan   {DIM}(your real five-year plan){OFF}")
+    print(f"  {GREEN}live{OFF}  barbara  the board and context    {DIM}(your real files){OFF}")
+    if on_fixtures:
+        print(f"  {YELL}demo{OFF}  holt     calendars                "
+              f"{DIM}(made-up calendar — see docs/PHASE1.md){OFF}")
+    else:
+        print(f"  {GREEN}live{OFF}  holt     calendars                {DIM}(your real calendars){OFF}")
+    print(f"\n{DIM}Just ask, or name someone. 'yes <code>' approves. "
+          f"/board  /pending  /log  /quit{OFF}\n")
 
     while True:
         try:

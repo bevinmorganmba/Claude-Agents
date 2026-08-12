@@ -9,18 +9,21 @@ hold *before* any credential exists.
 
 ## Run it
 
+**New here? → [docs/START-HERE.md](docs/START-HERE.md).** One command, ten
+minutes, no install — Bailey and Danbury work against your real board and plan
+without any calendar setup.
+
 ```bash
-python3 -m hermes doctor    # check the setup
-python3 -m hermes drill     # prove the policy engine — no API key needed
-python3 -m unittest discover -s tests
+bash setup.sh                              # guided; safe to re-run
+source .venv/bin/activate
+python3 -m hermes chat
 ```
 
-Those three need nothing installed but PyYAML. To actually talk to the fleet:
+Without an API key, these still work and prove the guardrails:
 
 ```bash
-pip install -r requirements.txt
-export ANTHROPIC_API_KEY=sk-ant-...
-python3 -m hermes chat
+python3 -m hermes drill     # policy engine, no model involved
+python3 -m unittest discover -s tests
 ```
 
 ```
