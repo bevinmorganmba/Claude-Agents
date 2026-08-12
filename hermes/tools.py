@@ -213,6 +213,8 @@ class Task:
     est_min: int
     energy: str
     blocks: str
+    serves: str      # which venture — this is what makes the priority ladder applicable
+    due: str
     done: bool
 
 
@@ -223,8 +225,12 @@ def _parse_board() -> list[Task]:
         if line.startswith("## "):
             status = line[3:].strip()
             continue
-        m = _TASK_RE.match(line.strip())
-        if not m:
+        # Match the raw line, not a stripped copy: the schema example in the
+        # board's header is indented, and stripping it made the documentation
+        # parse as a real task. Also require a column heading first — anything
+        # above the first `## ` is prose, not the board.
+        m = _TASK_RE.match(line)
+        if not m or status == "Unsorted":
             continue
         meta = dict(
             part.strip().split(":", 1)
@@ -235,29 +241,40 @@ def _parse_board() -> list[Task]:
         tasks.append(Task(
             id=m.group("id"), title=m.group("title").strip(), status=status,
             est_min=minutes, energy=meta.get("energy", "any").strip(),
-            blocks=meta.get("blocks", "none").strip(), done=m.group(1) == "x",
+            blocks=meta.get("blocks", "none").strip(),
+            serves=meta.get("serves", "unknown").strip(),
+            due=meta.get("due", "").strip(), done=m.group(1) == "x",
         ))
     return tasks
 
 
-def kanban_list_tasks(max_minutes: int = 0, energy: str = "") -> str:
-    """List tasks from the Kanban board, optionally filtered by time and energy.
+def kanban_list_tasks(max_minutes: int = 0, energy: str = "", serves: str = "") -> str:
+    """List tasks from the Kanban board, filtered by time, energy, or venture.
 
     Args:
         max_minutes: Only return tasks estimated at or below this. 0 means no limit.
         energy: Filter to one of deep, shallow, admin, or social. Empty means any.
+        serves: Filter to one venture, for example cfo-sales, options, salon,
+            tardus, s-dekalb, substack, personal, family. Empty means any.
     """
     tasks = [t for t in _parse_board() if not t.done]
     if max_minutes:
         tasks = [t for t in tasks if 0 < t.est_min <= max_minutes]
     if energy:
         tasks = [t for t in tasks if t.energy == energy.strip().lower()]
+    if serves:
+        tasks = [t for t in tasks if t.serves == serves.strip().lower()]
     if not tasks:
         return "No matching tasks on the board."
     lines = []
     for t in sorted(tasks, key=lambda t: (t.status != "Now", t.est_min)):
-        blocking = "" if t.blocks == "none" else f"  ← blocks {t.blocks}"
-        lines.append(f"[{t.status}] {t.id} {t.title} · {t.est_min}min · {t.energy}{blocking}")
+        bits = [f"[{t.status}]", t.id, t.title, "·", f"{t.est_min}min",
+                "·", t.energy, "·", t.serves]
+        if t.blocks != "none":
+            bits.append(f"← blocks {t.blocks}")
+        if t.due:
+            bits.append(f"← due {t.due}")
+        lines.append(" ".join(bits))
     return "\n".join(lines)
 
 
@@ -440,7 +457,7 @@ REGISTRY: dict[str, Tool] = {t.name: t for t in [
                 "title": _STR, "attendees": _STR},
                ["day_offset", "start_time", "duration_minutes", "title"])),
     _tool("kanban.list_tasks", kanban_list_tasks,
-          _obj({"max_minutes": _INT, "energy": _STR}, [])),
+          _obj({"max_minutes": _INT, "energy": _STR, "serves": _STR}, [])),
     _tool("kanban.set_status", kanban_set_status,
           _obj({"task_id": _STR, "status": _STR}, ["task_id", "status"])),
     _tool("context.read", context_read, _obj({"path": _STR}, ["path"])),

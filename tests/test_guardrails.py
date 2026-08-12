@@ -202,9 +202,37 @@ class TestToolBehaviour(Isolated):
             self.assertGreaterEqual(start, config.WORKDAY_START, line)
 
     def test_kanban_filters_by_available_time(self):
+        """Written against the board's shape, not against specific task IDs,
+        so replacing the board's contents doesn't break the test."""
         out = tools.kanban_list_tasks(max_minutes=20)
-        self.assertNotIn("t-001", out, "a 90-minute task must not be offered for 20 minutes")
-        self.assertIn("t-002", out)
+        # Take the ID from each line's second field. A plain substring check
+        # gives false positives, because one task's `blocks:` value can be
+        # another task's ID.
+        offered = {line.split()[1] for line in out.splitlines() if line.strip()}
+        for task in tools._parse_board():
+            if task.done or task.est_min == 0:
+                continue
+            if task.est_min > 20:
+                self.assertNotIn(task.id, offered,
+                                 f"{task.id} is {task.est_min}min, too long for a 20min gap")
+            else:
+                self.assertIn(task.id, offered, f"{task.id} fits and should be offered")
+
+    def test_schema_example_is_not_parsed_as_a_task(self):
+        """The board documents its own format with a sample line. That sample
+        must not show up as work Bailey can assign."""
+        ids = [t.id for t in tools._parse_board()]
+        self.assertNotIn("t-000", ids)
+        for task in tools._parse_board():
+            self.assertNotEqual(task.status, "Unsorted",
+                                f"{task.id} sits above the first column heading")
+
+    def test_every_task_declares_which_venture_it_serves(self):
+        """Bailey can recite the priority ladder, but she can only apply it if
+        each task says which bucket it belongs to."""
+        for task in tools._parse_board():
+            self.assertNotEqual(task.serves, "unknown",
+                                f"{task.id} has no serves: field")
 
 
 if __name__ == "__main__":
