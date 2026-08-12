@@ -96,8 +96,8 @@ names the first entry that was edited or removed.
 Real and shipping unchanged to the VPS: the broker, policy engine, approval
 flow, audit chain, context repo, charters, agent loop.
 
-Fixtures: calendars (`fixtures/*.json`, dated relative to today so they stay
-sensible), Drive metadata, and the Kanban seed. The bus is a directory instead
+Fixtures: Drive metadata, and calendars *until* you run Phase 1 — see
+docs/PHASE1.md. The bus is a directory instead
 of WhatsApp — Phase 2 swaps `hermes/bus.py` and nothing else moves.
 
 ## Before Phase 1

@@ -7,7 +7,7 @@ import json
 import re
 import sys
 
-from . import approvals, audit, bus, config, tools
+from . import approvals, audit, auth, bus, config, sources, tools
 from .agents import Fleet
 from .broker import Broker
 from .policy import Policy
@@ -241,6 +241,54 @@ def cmd_board(args) -> int:
     return 0
 
 
+def cmd_auth(args) -> int:
+    """One-time credential setup. Read-only scopes only."""
+    if args.what == "google":
+        print(auth.google_authorise())
+    elif args.what == "calendly":
+        import getpass
+        print("Calendly → Integrations → API & webhooks → personal access token.")
+        print(auth.calendly_store(getpass.getpass("Paste token (hidden): ")))
+    else:
+        for label, ok, note in auth.status():
+            mark = f"{GREEN}ok  {OFF}" if ok else f"{YELL}miss{OFF}"
+            suffix = f"  {DIM}{note}{OFF}" if note else ""
+            print(f"  {mark}  {label}{suffix}")
+    return 0
+
+
+def cmd_calendars(args) -> int:
+    """List the Google calendars on the account, so the right ones can be
+    named in secrets/sources.yml — including the subscribed feed carrying
+    Outlook events."""
+    cals = auth.google_list_calendars()
+    print(f"\n{BOLD}{len(cals)} calendar(s){OFF}\n")
+    for c in cals:
+        tag = f"{GREEN}primary{OFF}" if c["primary"] else (
+            f"{YELL}subscribed?{OFF}" if c["access"] not in ("owner", "writer") else "owned")
+        print(f"  {tag:<22} {c['summary']}")
+        print(f"  {DIM}{'':22} {c['id']}{OFF}")
+    print(f"\n{DIM}A calendar you do not own is usually a subscribed feed — that is the"
+          f"\none to give a lag_minutes in sources.yml.{OFF}\n")
+    return 0
+
+
+def cmd_sources(args) -> int:
+    """Show what the fleet will actually read from right now."""
+    fleet = sources.load()
+    print(f"\n{BOLD}Calendar sources{OFF}\n")
+    for s_ in fleet.sources:
+        freshness = (f"{YELL}lags up to {s_.lag_minutes}min{OFF}" if s_.stale
+                     else f"{GREEN}live{OFF}")
+        print(f"  {s_.kind:<10} {s_.label:<34} {freshness}")
+    for problem in fleet.errors:
+        print(f"  {RED}[!]{OFF} {problem}")
+    if all(s_.kind == "fixture" for s_ in fleet.sources):
+        print(f"\n{DIM}Running on fixtures. See docs/PHASE1.md to connect real calendars.{OFF}")
+    print()
+    return 0
+
+
 def cmd_doctor(args) -> int:
     print(f"{BOLD}Hermes Phase 0 — preflight{OFF}\n")
     rows = []
@@ -276,6 +324,13 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("drill", help="prove the policy engine, no API key needed").set_defaults(fn=cmd_drill)
     sub.add_parser("doctor", help="check the setup").set_defaults(fn=cmd_doctor)
     sub.add_parser("pending", help="list actions awaiting approval").set_defaults(fn=cmd_pending)
+    sub.add_parser("calendars", help="list your Google calendars").set_defaults(fn=cmd_calendars)
+    sub.add_parser("sources", help="show which calendars the fleet reads").set_defaults(fn=cmd_sources)
+
+    p = sub.add_parser("auth", help="connect a calendar (read-only)")
+    p.add_argument("what", nargs="?", default="status",
+                   choices=["google", "calendly", "status"])
+    p.set_defaults(fn=cmd_auth)
 
     p = sub.add_parser("call", help="invoke one tool as one agent")
     p.add_argument("agent")

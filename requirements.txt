@@ -1,2 +1,8 @@
 anthropic>=0.69.0
 PyYAML>=6.0
+
+# Phase 1 — real calendars (read-only). Not needed for drill/tests.
+requests>=2.31
+google-auth>=2.30
+google-auth-oauthlib>=1.2
+google-api-python-client>=2.140

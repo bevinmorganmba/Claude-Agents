@@ -287,3 +287,64 @@ class TestDueDates(Isolated):
             if task.due:
                 self.assertNotEqual(tools._due_phrase(task.due), f"due {task.due}",
                                     f"{task.id} has an unparseable due date: {task.due}")
+
+
+class TestSources(Isolated):
+    """Phase 1 swaps fixtures for real calendars. Two properties matter: it
+    degrades to fixtures rather than breaking, and a stale or failed source
+    is surfaced rather than silently producing a confident wrong answer."""
+
+    def test_no_credentials_falls_back_to_fixtures(self):
+        from hermes import sources
+        fleet = sources.load()
+        self.assertTrue(all(s.kind == "fixture" for s in fleet.sources))
+        events, problems = fleet.fetch(0, 3)
+        self.assertEqual(problems, [])
+        self.assertTrue(events, "fixtures should still produce events")
+
+    def test_a_failing_source_is_reported_not_swallowed(self):
+        # Aliased: a class body that assigns `sources` cannot also read the
+        # module named `sources` on the right-hand side.
+        from hermes import sources as srcmod
+
+        class Broken:
+            sources = [srcmod.Source("Tardus feed", "google", 0)]
+
+            def fetch(self, a, b):
+                raise ConnectionError("upstream refused")
+
+        fleet = srcmod.Fleet([srcmod.FixtureProvider(), Broken()])
+        events, problems = fleet.fetch(0, 2)
+        self.assertTrue(events, "the working source still returns events")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("Tardus feed", problems[0])
+
+    def test_lagging_source_produces_a_caveat(self):
+        from hermes import sources
+        stale = sources.Source("Tardus (Outlook subscription)", "google", 1440)
+        self.assertTrue(stale.stale)
+        self.assertIn("24h", stale.caveat())
+
+    def test_live_source_produces_no_caveat(self):
+        from hermes import sources
+        self.assertFalse(sources.Source("personal", "google", 0).stale)
+
+    def test_availability_answers_carry_the_caveat(self):
+        """The point of tracking lag: Holt must not say an afternoon is clear
+        without saying which calendar might not be current."""
+        from hermes import sources as srcmod
+
+        class Stale:
+            sources = [srcmod.Source("Tardus (Outlook subscription)", "google", 1440)]
+
+            def fetch(self, a, b):
+                return []
+
+        real_load = srcmod.load
+        srcmod.load = lambda: srcmod.Fleet([srcmod.FixtureProvider(), Stale()])
+        try:
+            out = tools.calendar_list_events(1)
+            self.assertIn("[!]", out)
+            self.assertIn("Tardus", out)
+        finally:
+            srcmod.load = real_load

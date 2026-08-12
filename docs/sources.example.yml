@@ -1,0 +1,31 @@
+# Copy to secrets/sources.yml and fill in your own IDs.
+#   cp docs/sources.example.yml secrets/sources.yml
+#
+# secrets/ is gitignored. This file holds no tokens — only calendar IDs and
+# how much each source can be trusted to be current.
+
+# Used to decide whether a meeting attendee is external, which affects how
+# hard Holt considers the meeting to move.
+own_domains:
+  - "@bevinmorgan.com"
+  - "bevin.morgan.mba@gmail.com"
+
+google:
+  enabled: true
+  calendars:
+    # Run `python3 -m hermes calendars` to get these IDs.
+    - id: you@gmail.com
+      label: personal
+      lag_minutes: 0            # you own it — Google serves it live
+
+    # The calendar you do NOT own is the subscribed feed carrying Outlook
+    # events. Google polls external feeds on its own slow schedule, so this
+    # one is stale by design. Measure it (docs/PHASE1.md step 6) rather than
+    # guessing — an availability answer built on a stale calendar is worse
+    # than no answer, because it sounds just as confident.
+    - id: abc123@import.calendar.google.com
+      label: Tardus (Outlook subscription)
+      lag_minutes: 1440         # 24h, deliberately pessimistic until measured
+
+calendly:
+  enabled: true                 # token via `hermes auth calendly`

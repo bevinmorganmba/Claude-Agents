@@ -17,6 +17,14 @@ BUS = VAR / "bus"
 AUDIT_LOG = VAR / "audit.jsonl"
 APPROVALS_DB = VAR / "approvals.json"
 
+# Phase 1 credentials. Gitignored, 0600, and read only by the broker's side of
+# the house — no tool and no agent can reach into this directory.
+SECRETS = ROOT / "secrets"
+GOOGLE_CLIENT_SECRET = SECRETS / "google_client_secret.json"
+GOOGLE_TOKEN = SECRETS / "google_token.json"
+CALENDLY_TOKEN = SECRETS / "calendly_token.json"
+SOURCES_FILE = SECRETS / "sources.yml"
+
 TZ = ZoneInfo(os.environ.get("HERMES_TZ", "America/New_York"))
 
 # Holt's assumptions when computing availability. Deliberately explicit:

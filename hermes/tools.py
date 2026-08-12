@@ -1,9 +1,13 @@
-"""Tool implementations, backed by fixtures.
+"""Tool implementations.
 
-Phase 0 has no network and no OAuth. Every tool below reads from
-`fixtures/` or the local context repo. The three deny-listed tools at the
-bottom are registered deliberately: an agent must be *able* to attempt them
-for the drill to prove the broker refuses.
+Calendar reads go through `sources.py`, which serves real Google/Calendly
+data when authorised and fixtures otherwise — so a fresh clone, the drill,
+and the tests all run with no credentials and no network. Drive and the
+Kanban board are still local.
+
+The three deny-listed tools at the bottom are registered deliberately: an
+agent must be *able* to attempt them for the drill to prove the broker
+refuses.
 """
 
 from __future__ import annotations
@@ -33,27 +37,37 @@ def _fixture(name: str) -> dict:
 
 
 def _all_events(day_from: int = 0, day_to: int = 0) -> list[dict]:
-    """Merged, resolved events across every calendar source in fixtures/."""
-    out: list[dict] = []
-    for fname in ("calendar_google.json", "calendar_outlook.json", "calendly.json"):
-        doc = _fixture(fname)
-        for ev in doc["events"]:
-            off = ev["day_offset"]
-            if not (day_from <= off <= day_to):
-                continue
-            day = _today() + timedelta(days=off)
-            out.append({
-                "source": doc["source"],
-                "day_offset": off,
-                "date": day.isoformat(),
-                "start": _at(day, ev["start"]),
-                "end": _at(day, ev["end"]),
-                "title": ev["title"],
-                "location": ev.get("location", ""),
-                "in_person": bool(ev.get("in_person", False)),
-                "external": bool(ev.get("external", False)),
-            })
-    return sorted(out, key=lambda e: e["start"])
+    """Merged events across every configured calendar source.
+
+    Falls back to fixtures when nothing is authorised, so a fresh clone and
+    the guardrail tests run without credentials or network."""
+    from . import sources
+    events, _ = sources.load().fetch(day_from, day_to)
+    return events
+
+
+def _data_caveats(day_from: int = 0, day_to: int = 0) -> list[str]:
+    """Anything that should make an availability answer less confident: a
+    source that failed, or one that syncs on a delay.
+
+    This is the whole reason the source layer tracks lag. Bevin's Tardus
+    calendar reaches Google as a subscribed feed on a slow poll, so a meeting
+    booked in Outlook this morning may not be visible. Holt saying "Thursday
+    afternoon is clear" without that qualification is the failure that makes
+    him untrustworthy."""
+    from . import sources
+    fleet = sources.load()
+    _, problems = fleet.fetch(day_from, day_to)
+    notes = list(problems)
+    notes.extend(s.caveat() for s in fleet.sources if s.stale)
+    return notes
+
+
+def _with_caveats(body: str, day_from: int = 0, day_to: int = 0) -> str:
+    notes = _data_caveats(day_from, day_to)
+    if not notes:
+        return body
+    return body + "\n" + "\n".join(f"  [!] {n}" for n in notes)
 
 
 def _fmt(dt: datetime) -> str:
@@ -88,7 +102,7 @@ def calendar_list_events(day_offset: int = 0) -> str:
     events = _all_events(day_offset, day_offset)
     day = _today() + timedelta(days=day_offset)
     if not events:
-        return f"{day:%A %-d %B}: nothing scheduled."
+        return _with_caveats(f"{day:%A %-d %B}: nothing scheduled.", day_offset, day_offset)
     lines = [f"{day:%A %-d %B} — {len(events)} commitment(s):"]
     for ev in events:
         tags = []
@@ -98,7 +112,7 @@ def calendar_list_events(day_offset: int = 0) -> str:
             tags.append("external attendee")
         suffix = f"  [{'; '.join(tags)}]" if tags else ""
         lines.append(f"  {_fmt(ev['start'])}–{_fmt(ev['end'])}  {ev['title']} ({ev['source']}){suffix}")
-    return "\n".join(lines)
+    return _with_caveats("\n".join(lines), day_offset, day_offset)
 
 
 def calendar_free_busy(day_offset_start: int = 0, day_offset_end: int = 0) -> str:
@@ -143,12 +157,15 @@ def calendar_find_slots(duration_minutes: int, day_offset_start: int = 0,
         if close > cursor and close - cursor >= need:
             found.append(f"{day:%a %d %b} {_fmt(cursor)}–{_fmt(cursor + need)}")
     if not found:
-        return (f"No {duration_minutes}-minute slot available between day {day_offset_start} "
-                f"and day {day_offset_end} within {config.WORKDAY_START}–{config.WORKDAY_END}.")
+        return _with_caveats(
+            f"No {duration_minutes}-minute slot available between day {day_offset_start} "
+            f"and day {day_offset_end} within {config.WORKDAY_START}–{config.WORKDAY_END}.",
+            day_offset_start, day_offset_end)
     header = f"Open {duration_minutes}-minute slots"
     if in_person:
         header += f" (with {config.TRAVEL_BUFFER_MIN}min travel buffer)"
-    return header + ":\n" + "\n".join("  " + f for f in found)
+    return _with_caveats(header + ":\n" + "\n".join("  " + f for f in found),
+                         day_offset_start, day_offset_end)
 
 
 def calendar_check_slot(day_offset: int, start_time: str, duration_minutes: int,
@@ -181,7 +198,7 @@ def calendar_check_slot(day_offset: int, start_time: str, duration_minutes: int,
     if not window_ok:
         lines.append(f"  outside working hours ({config.WORKDAY_START}–{config.WORKDAY_END})")
     lines.extend("  " + c for c in conflicts)
-    return "\n".join(lines)
+    return _with_caveats("\n".join(lines), day_offset, day_offset)
 
 
 def calendar_create_event(day_offset: int, start_time: str, duration_minutes: int,
