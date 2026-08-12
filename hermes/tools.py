@@ -171,8 +171,13 @@ def calendar_check_slot(day_offset: int, start_time: str, duration_minutes: int,
             why = "overlaps" if start < ev["end"] and end > ev["start"] else "too tight for travel"
             conflicts.append(f"{why}: {ev['title']} {_fmt(ev['start'])}–{_fmt(ev['end'])}")
     window_ok = (start >= _at(day, config.WORKDAY_START) and end <= _at(day, config.WORKDAY_END))
-    verdict = "FREE" if (not conflicts and window_ok) else "NOT FREE"
+    weekend = day.weekday() >= 5
+    verdict = "FREE" if (not conflicts and window_ok and not weekend) else "NOT FREE"
     lines = [f"{verdict}: {day:%A %-d %B} {_fmt(start)}–{_fmt(end)}"]
+    if weekend:
+        # find_slots already skips weekends. Without this, checking one
+        # specific Saturday slot would come back FREE and contradict it.
+        lines.append("  weekend — not available unless you say otherwise")
     if not window_ok:
         lines.append(f"  outside working hours ({config.WORKDAY_START}–{config.WORKDAY_END})")
     lines.extend("  " + c for c in conflicts)

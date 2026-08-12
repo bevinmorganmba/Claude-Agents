@@ -209,3 +209,26 @@ class TestToolBehaviour(Isolated):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestWeekendConsistency(Isolated):
+    """find_slots skips weekends. check_slot must agree with it, or Holt will
+    confirm a Saturday that his own availability search would never offer."""
+
+    def _next_weekday_offset(self, target: int) -> int:
+        from datetime import datetime, timedelta
+        today = datetime.now(config.TZ).date()
+        for off in range(1, 8):
+            if (today + timedelta(days=off)).weekday() == target:
+                return off
+        raise AssertionError("unreachable")
+
+    def test_check_slot_refuses_saturday(self):
+        out = tools.calendar_check_slot(self._next_weekday_offset(5), "11:00", 30)
+        self.assertTrue(out.startswith("NOT FREE"), out)
+        self.assertIn("weekend", out)
+
+    def test_find_slots_never_offers_a_weekend(self):
+        out = tools.calendar_find_slots(30, 0, 13)
+        for day in ("Sat", "Sun"):
+            self.assertNotIn(day, out, f"{day} offered as availability")
