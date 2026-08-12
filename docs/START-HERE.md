@@ -47,11 +47,17 @@ you say a word to anyone.
 
 ## 3. Talk to them
 
+Setup starts the chat for you. **From then on, one command gets you back:**
+
 ```bash
-source .venv/bin/activate && python3 -m hermes chat
+./chat
 ```
 
-Then just type. Some things worth asking first:
+You'll know you're in the right place when the prompt says `you`. If it says
+something ending in `$`, you're still at the Cloud Shell prompt — type `./chat`
+first.
+
+Some things worth asking:
 
 ```
 bailey, I have 40 minutes — what should I do?
@@ -65,6 +71,12 @@ danbury, where does the options account fit right now?
 
 Type `/quit` to leave. `/board` shows your tasks. Everything you type is
 against your real board and real plan — those are already loaded.
+
+Coming back later? Open shell.cloud.google.com and run:
+
+```bash
+cd Claude-Agents && ./chat
+```
 
 ---
 
@@ -91,6 +103,7 @@ Common ones:
 
 | It says | Do |
 |---|---|
+| `bailey: command not found` | You're at the Cloud Shell prompt, not in the chat. Type `./chat` first. |
 | `python3: command not found` | You're not in Cloud Shell. Go back to step 1. |
 | `authentication_error` | Bad API key. Re-run `bash setup.sh` and paste it again. |
 | `credit balance is too low` | Add a few dollars at console.anthropic.com → Billing. |

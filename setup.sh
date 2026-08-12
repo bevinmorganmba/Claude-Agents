@@ -91,20 +91,22 @@ echo "${D}  When you want it: docs/PHASE1.md${O}"
 step "Ready"
 if [ -f .env ]; then
   cat <<EOF
-  Start talking to them:
+  ${D}From now on, one command gets you back here:${O}
 
-      ${B}source .venv/bin/activate && python3 -m hermes chat${O}
+      ${B}./chat${O}
 
-  Try:
-      bailey, I have 40 minutes — what should I do?
-      bailey, I have 3 hours and good energy
-      danbury, Farm School wants another workshop for \$900 — worth it?
-      danbury, should I take on another Tardus responsibility?
-
-  ${D}Holt will say his calendar is fixtures until you do step 5.${O}
+  Starting it now. Type your question at the "you" prompt — not out here.
+  ${D}/quit leaves. /board shows your tasks.${O}
 EOF
+  echo
+  read -rp "  Press Enter to start talking to them... " _
+  exec ./chat
 else
-  echo "  Add an API key (re-run ${B}bash setup.sh${O}) to talk to them."
-  echo "  Meanwhile ${B}python3 -m hermes board${O} shows your tasks."
+  echo "  No API key, so the agents can't talk yet."
+  echo "  Re-run ${B}bash setup.sh${O} when you have one."
+  echo
+  echo "  These work without it:"
+  echo "      ${B}./chat board${O}     your tasks"
+  echo "      ${B}./chat drill${O}     the safety rules"
 fi
 echo

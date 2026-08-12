@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# The only command you need:
+#
+#   ./chat            talk to the fleet
+#   ./chat board      show your tasks
+#   ./chat drill      prove the safety rules (no API key needed)
+#
+# It sorts out the virtualenv itself, so there is nothing to activate first
+# and nothing to remember.
+
+set -uo pipefail
+cd "$(dirname "$0")"
+
+# Check for the activate script, not just the directory: an
+# interrupted setup leaves a .venv that exists but does not work.
+if [ ! -f .venv/bin/activate ]; then
+  echo "First run — setting things up. Takes about a minute."
+  echo
+  bash setup.sh
+  exit $?
+fi
+
+# shellcheck disable=SC1091
+source .venv/bin/activate
+
+if [ ! -f .env ] && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ "${1:-chat}" = "chat" ]; then
+  echo
+  echo "No API key yet — the agents can't talk without one."
+  echo "Run: bash setup.sh"
+  echo
+  echo "Meanwhile, these work without it:"
+  echo "    ./chat board     your tasks"
+  echo "    ./chat drill     the safety rules"
+  echo
+  exit 1
+fi
+
+exec python3 -m hermes "${@:-chat}"
