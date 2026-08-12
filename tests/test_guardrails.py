@@ -260,3 +260,30 @@ class TestWeekendConsistency(Isolated):
         out = tools.calendar_find_slots(30, 0, 13)
         for day in ("Sat", "Sun"):
             self.assertNotIn(day, out, f"{day} offered as availability")
+
+
+class TestDueDates(Isolated):
+    """A bare date makes the model do calendar arithmetic. Days remaining is
+    the number the decision actually turns on, so the tool computes it."""
+
+    def test_future_date_reports_days_remaining(self):
+        from datetime import timedelta
+        soon = (tools._today() + timedelta(days=5)).isoformat()
+        self.assertIn("5d away", tools._due_phrase(soon))
+
+    def test_past_date_is_marked_overdue(self):
+        from datetime import timedelta
+        past = (tools._today() - timedelta(days=3)).isoformat()
+        self.assertIn("OVERDUE by 3d", tools._due_phrase(past))
+
+    def test_today_is_called_out(self):
+        self.assertIn("DUE TODAY", tools._due_phrase(tools._today().isoformat()))
+
+    def test_unparseable_date_degrades_rather_than_crashing(self):
+        self.assertEqual(tools._due_phrase("next tuesday"), "due next tuesday")
+
+    def test_board_due_dates_all_parse(self):
+        for task in tools._parse_board():
+            if task.due:
+                self.assertNotEqual(tools._due_phrase(task.due), f"due {task.due}",
+                                    f"{task.id} has an unparseable due date: {task.due}")

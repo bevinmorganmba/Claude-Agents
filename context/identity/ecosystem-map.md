@@ -35,6 +35,13 @@ decision already made. Flag it.
 Tardus sits outside the chain entirely. It funds the runway and consumes the
 hours; it never feeds the other pieces.
 
+## Standing dates
+
+- **September Salon — Saturday 19 September 2026.** Two board tasks hang off
+  it (paying Tia for the space, the Flodesk invite). The Salon runs roughly
+  monthly; add each date here as it is set, because a Salon date silently
+  creates deadlines on tasks that otherwise look open-ended.
+
 ## The trigger
 
 Tardus ends at **$7,500 gross per month from other sources.** Every piece above

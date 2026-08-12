@@ -273,9 +273,25 @@ def kanban_list_tasks(max_minutes: int = 0, energy: str = "", serves: str = "") 
         if t.blocks != "none":
             bits.append(f"← blocks {t.blocks}")
         if t.due:
-            bits.append(f"← due {t.due}")
+            bits.append(f"← {_due_phrase(t.due)}")
         lines.append(" ".join(bits))
     return "\n".join(lines)
+
+
+def _due_phrase(due: str) -> str:
+    """Render a due date as time remaining. A bare date makes an agent do
+    calendar arithmetic it has no reason to get right; days remaining is the
+    number the decision actually turns on."""
+    try:
+        target = date.fromisoformat(due)
+    except ValueError:
+        return f"due {due}"
+    days = (target - _today()).days
+    if days < 0:
+        return f"OVERDUE by {-days}d (was {due})"
+    if days == 0:
+        return f"DUE TODAY ({due})"
+    return f"due {due}, {days}d away"
 
 
 def kanban_set_status(task_id: str, status: str) -> str:

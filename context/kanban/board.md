@@ -24,12 +24,22 @@ t-015, t-016, t-018, t-019, t-020.
 **Guessed — correct these:** t-002 (20m), t-003 (10m), t-004 (30m),
 t-005 (30m), t-006 (30m), t-009 (2h), t-011 (30m), t-017 (20m).
 
+## The September Salon — Saturday 19 September 2026
+
+Bevin gave the event date. The two `due:` dates below are working deadlines I
+derived from it, not dates he set — correct them if they are wrong:
+
+- **t-003, pay Tia — due 2026-08-22.** A venue wants confirmation well ahead of
+  the date, and it is a ten-minute task, so there is no reason to sit on it.
+- **t-004, Flodesk email — due 2026-08-28.** Roughly three weeks of runway for
+  RSVPs before a Saturday event.
+
 ## Now
 
 - [ ] t-001 | Invoice Farm School for workshop ($900) | est:15m | energy:admin | blocks:cash | serves:cfo-revenue
 - [ ] t-002 | Open options brokerage account | est:20m | energy:admin | blocks:options-bet | serves:options
-- [ ] t-003 | Pay Tia for September Salon event space | est:10m | energy:admin | blocks:Tia | serves:salon
-- [ ] t-004 | Send Flodesk email about September Salon | est:30m | energy:admin | blocks:salon-attendees | serves:salon
+- [ ] t-003 | Pay Tia for September Salon event space | est:10m | energy:admin | blocks:Tia | serves:salon | due:2026-08-22
+- [ ] t-004 | Send Flodesk email about September Salon | est:30m | energy:admin | blocks:salon-attendees | serves:salon | due:2026-08-28
 - [ ] t-005 | Final follow-up, first round CFO sales leads | est:30m | energy:social | blocks:leads | serves:cfo-sales
 - [ ] t-006 | First follow-up, second round CFO sales leads | est:30m | energy:social | blocks:leads | serves:cfo-sales
 - [ ] t-007 | Finish and send Sed's SOPs | est:60m | energy:deep | blocks:Sed | serves:cfo-delivery
